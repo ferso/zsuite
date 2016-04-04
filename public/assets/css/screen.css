@@ -1,0 +1,20 @@
+body{background:#fff}#root.fluid-container{padding-top:20px}
+/*# sourceMappingURL=screen.css.map */
+
+
+#colContainer{
+
+	border:1px solid #ccc;
+	background-color:#fff;
+	padding:20px;
+	
+}
+
+.avatar{
+	width: 25px;
+	margin-right: 10px;
+	margin-top: 15px;
+}
+
+
+

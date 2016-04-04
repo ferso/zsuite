@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+     <link rel="icon" href="/assets/img/favicon.ico">
+
+    <link href='https://fonts.googleapis.com/css?family=Raleway:400,100,100italic,200italic,200,300,300italic,900,800,600italic,500,600|Playball' rel='stylesheet' type='text/css'>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/assets/cdn/bootstrap.min.css"> 
+
+    <!-- Awesome fonts -->
+    <link rel="stylesheet" href="/assets/cdn/font-awesome.min.css"> 
+
+
+    <!-- libs -->
+    <script src="/assets/cdn/jquery.min.js"></script>
+    <script src="/assets/cdn/jquery.easing.min.js"></script>
+    <script src="/assets/cdn/tether.min.js"></script>
+    <script src="/assets/cdn/bootstrap.min.js"></script>
+    <script src="/assets/lib/DataChooser/DataChooser.js"></script>
+
+     <!-- Main Styles -->
+    <link rel="stylesheet" href="/assets/css/screen.css" > 
+    <link rel="stylesheet" href="/assets/css/DataChooser.css" > 
+
+      <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+<nav class="navbar navbar-dark bg-inverse navbar-full">
+<div class="container">
+  <ul class="nav navbar-nav">
+    <li class="nav-item active">
+      <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Features</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">Pricing</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#">About</a>
+    </li>
+  </ul>
+</div>
+</nav>
+  
+  <div id="root" class="fluid-container">
+    <div class="col-md-6">
+
+        <div id="colContainer"></div>
+
+    </div> 
+    <div class="col-md-6">
+
+        <div id="workpsace">
+
+
+        </div>
+
+    </div> 
+  </div>
+
+<!--   <div>
+    <div class="pull-left avatar-side">
+     <img src="{{avatar}}" class="img-thumbnail"> 
+     <div class="followers">[{{followers}}] </div> 
+   </div> 
+   <div class="pull-left">@{{user}} <br> {{text}}</div>
+   <div class="fix"></div>
+ </div> 
+-->
+
+
+
+<!--   <div>
+       {{text}}
+       </div> 
+-->
+
+<!-- 
+   template: '  <div>\
+    <div class="pull-left avatar-side">\
+     <img src="{{avatar}}" class="img-thumbnail"> \
+     <div class="followers">[{{followers}}] </div> \
+   </div> \
+   <div class="info-side">@{{user}} <br> {{text}}</div>\
+   <div class="fix clear"></div>\
+ </div>\
+', -->
+
+  <script type="text/javascript">
+
+      $('#colContainer').DataChooser({
+        rows:10,
+        searchtext:'Buscar un elemento',
+        source:'/data.json',
+        hideStatus:5,
+        hideLabel:'Mostrar Más',
+        template: ' <div>  <img src="{{avatar}}" class="img-circle avatar pull-right">  @{{user}} <br> {{text}}</div>',
+        onClick:function(data){
+          $('#workpsace').html(data.user);
+        }
+    })
+
+  </script>
+    
+  </body>
+</html>
