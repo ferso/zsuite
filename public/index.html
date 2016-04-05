@@ -98,12 +98,12 @@
 
   <script type="text/javascript">
 
-      $('#colContainer').DataChooser({
+      window.DataChooser = $('#colContainer').DataChooser({
         rows:10,
         searchtext:'Buscar un elemento',
         source:'/data.json',
-        hideStatus:5,
-        hideLabel:'Mostrar Más',
+        showMoreUp:true,
+        prepend:true,
         template: ' <div>  <img src="{{avatar}}" class="img-circle avatar pull-right">  @{{user}} <br> {{text}}</div>',
         onClick:function(data){
           $('#workpsace').html(data.user);

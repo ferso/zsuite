@@ -107,10 +107,16 @@ THE SOFTWARE.
 			 hideLabel			: 'Show hidden elements',
 
 			 // Set enable button for load more elements
-			 showMore			: false,
+			 showMoreUp			: false,
+
+			 // Set enable button for load more elements
+			 showMoreDown		: false,
 
 			 // Set label for button load more elements
-			 showMoreLabel			: 'Load more',
+			 showMoreLabel		: 'Load more',
+			
+			 // add elements to begging
+			 prepend		: false,
 			
 			 // Set placeholder text in the seach input
 			 searchtext			:'Enter keyword to find, press enter',
@@ -144,6 +150,8 @@ THE SOFTWARE.
 			 onLink	: function(){},
 
 
+
+
 		}		
 
 		//the main container
@@ -152,11 +160,13 @@ THE SOFTWARE.
 		// Extend Options with Default
 		this._options 	   = $.extend(_defaults, options);
 
-
+		this._increment    = 1;
 
 		/* -----
 		# Set initial Page Request
 		-------------------------------------------------------------- */
+
+		var that 		    = this;
 
 		// the current page
 		this._page          = this._options.page;
@@ -185,11 +195,20 @@ THE SOFTWARE.
 		// collection checked
 		this._collection    = [];
 
+		// data set
+		this._dataSet 		= []; 
+
+		//method;
+		this._insert_method = this._options.prepend ? 'prepend' : 'append';
 		// draw container
 		this.drawContainer();
 
 		// auto start
-		if( this._options.auto ) this.load();
+		if( this._options.auto ) this.load(function(){
+			 that.render(data = null);
+		});
+
+		
 					
 		//return full object;
 		return this;
@@ -331,6 +350,7 @@ THE SOFTWARE.
 	# @return void
 	-------------------------------------------------------------- */
     $.fn.setActive = function(e){
+    	$('#'+this.mainBody.id+' .active').removeClass('active');
     	$('#'+e).addClass('active');
     },
 
@@ -348,13 +368,19 @@ THE SOFTWARE.
 		this.drawSearch();
 
 		// tbody 
+		this.mainBodyHeader 		  = document.createElement('div');
+		this.mainBodyHeader.id 	      = this._options.id+'-zdata-chooser-body-header';
+		this._container.append(this.mainBodyHeader);
+
+		// tbody 
 		this.mainBody 				= document.createElement('div');
 		this.mainBody.id 	       	= this._options.id+'-zdata-chooser-body';
 		this._container.append(this.mainBody);
 
 		// tbody 
-		this.mainBodyHidden 		= document.createElement('div');
-		this.mainBodyHidden.id 	       	= this._options.id+'-zdata-chooser-body-hidden';
+		this.mainBodyHidden 		  = document.createElement('div');
+		this.mainBodyHidden.id 	      = this._options.id+'-zdata-chooser-body-hidden';
+		this.mainBodyHidden.className = 'hide';
 		this._container.append(this.mainBodyHidden);
 		
 	 },
@@ -381,36 +407,28 @@ THE SOFTWARE.
 	  * create the Search input in the table
 	  * @return void
 	  -------------------------------------------------------------- */
-	  $.fn.drawSearch = function(s ){
-	  	
+	  $.fn.drawSearch = function(s ){	  	
 	  	var that = this;
-
 		if( this._options.searcher ){
-
 			this.sic 	       	   		= document.createElement('div');
-			this.sic.className     		= 'search-container rpw input-group';
+			this.sic.className     		= 'search-container input-group';
 			this._container.append(this.sic);
-
 			// ------------------------------------------------------------
-
 			this.searchInput 	         = document.createElement('input');
 			this.searchInput.type        = 'search';
 			this.searchInput.placeholder = this._options.searchtext;
 			this.searchInput.className   = ' form-control' ;
 			this.sic.appendChild( this.searchInput );
 			this.searchInput = $( this.searchInput );
-
 			// input-group-addon
 			var gspan 	       	   		= document.createElement('div');
 			gspan.className     		= 'input-group-addon';
 			this.sic.appendChild(gspan);
-
 			// loader_icon_search
 			var gspanicon 	       	   	= document.createElement('div');
 			gspanicon.id                = 'loader_icon_search';
 			gspanicon.className     	= 'fa fa-search main-loader';
 			gspan.appendChild(gspanicon);
-
 			// search input blur action
 			this.searchInput.blur(function(e){
 			 	e.preventDefault();
@@ -420,7 +438,6 @@ THE SOFTWARE.
 					that._search();
 				}
 			});
-
 			// search input key actions 
 			this.searchInput.keyup(function(e){
 					e.preventDefault();
@@ -442,51 +459,23 @@ THE SOFTWARE.
 	# @return void
 	-------------------------------------------------------------- */
 	$.fn.drawHeaders = function(){
-
 		$(this.mainTableHead).html('');
-
 		var that     = this;		 	
 		var iterator = 1;
-
 	},
 
 	/* -----
 	# @name drawBody()
 	# @return void
 	-------------------------------------------------------------- */
-	$.fn.drawBody  = function(){
-		
+	$.fn.drawBody  = function(){		
 		var i 		  = 0;	
 		var that      = this;
-		var count 	  = this._data.length;
-		this._dataSet = []; 
+		var count 	  = this._data.length;		
 
-		$(this.mainBody).html('');		
-		$.each(this._data, function(i,rowset){		
-			var theid   = 'dsh-row-'+rowset.id;
-			that._dataSet[rowset.id] = rowset;
-			var element = that.getTemplate(rowset);			
-			$(that.mainBody).append(element);
-			$(element).attr('id',theid);
-			// $(element).prepend('<input type="checkbox" value="1">ss');
-			var element 			= document.getElementById(theid);			
-				element.className   = 'row';
-				element.dataset.id  = rowset.id;
-				element.onclick     = function(e){
-					e.preventDefault();
-					// that.active(this);
-					that.setActive(this.id);
-					that._options.onClick.call(this,that._dataSet[this.dataset.id]);		
-				}
-				if(that._options.hideStatus){					
-					if( that._options.hideStatus == rowset.status){			
-						$(element).addClass('hide');					
-					}
-				}
-		});
-
-		that.createShowHiden();
-		that.createShowMore();
+		$.each(this._data, function(i,rowset){				
+			that.appendThis(rowset)		
+		});					
 	},
 	/* -----
 	# @name createShowHiden
@@ -494,25 +483,21 @@ THE SOFTWARE.
 	-------------------------------------------------------------- */
 	$.fn.createShowHiden = function(){
 		var that = this;
-		var div = document.createElement('div');
-			div.className = 'row';
-			div.innerHTML = '>>'+this._options.hideLabel;
+		var div  = document.createElement('div');
+			div.className = 'zrow showmore';
+			div.innerHTML = '<i class="fa fa-arrow-circle-o-right"></i> '+this._options.hideLabel;
 			this.mainBody.appendChild(div);
-
 			div.onclick     = function(e){
 				e.preventDefault();
 				if( typeof(this.open) != 'undefined' && this.open == true ){
-					console.log('fuck yeah!');
 					this.open = false;
-					this.innerHTML = '>> Show more';
-					$('#'+that.mainBody.id+' .show').removeClass('hide').addClass('hide');
+					this.innerHTML = 'Show more';
+					$(that.mainBodyHidden).removeClass('show').addClass('hide');
 				}else{
-					console.log('wtf');
 					this.open = true;
-					this.innerHTML = '>> Hide More';
-					$('#'+that.mainBody.id+' .hide').removeClass('hide').addClass('show');
-				}
-				
+					this.innerHTML = '>> Hide ';
+					$(that.mainBodyHidden).removeClass('hide').addClass('show');
+				}			
 			}
 	},
 
@@ -520,19 +505,47 @@ THE SOFTWARE.
 	# @name createShowMore
 	# This function load more elements in the view
 	-------------------------------------------------------------- */
-	$.fn.createShowMore = function(){
+	$.fn.createShowMoreDown = function(){
+		var that = this;
+		var div = document.createElement('div');
+			div.className = 'zrow loadmore softactive';
+			div.innerHTML = '<i class="fa fa-arrow-circle-o-right"></i> '+this._options.showMoreLabel;
+			this.mainBody.appendChild(div);
+			div.onclick     = function(e){
+				e.preventDefault();
+				that.loadmore();	
+			}
+	},
 
+	/* -----
+	# @name createShowMore
+	# This function load more elements in the view
+	-------------------------------------------------------------- */
+	$.fn.createShowMoreUp = function(){
+		var that = this;
+		var div = document.createElement('div');
+			div.className = 'zrow  loadmore softactive';
+			div.innerHTML = '<i class="fa fa-arrow-circle-o-right"></i> '+this._options.showMoreLabel;
+			this.mainBodyHeader.appendChild(div);
+			div.onclick     = function(e){
+				e.preventDefault();
+
+				that._options.source = 'http://localhost:8001/data'+that._increment+'.json';
+				that.loadmore();		
+			}  
 	},
 
 	/* -----
 	# @name load
 	# This function do the ajax request
 	-------------------------------------------------------------- */
-	$.fn.load = function (){
+	$.fn.load = function (cb){
 
 		var that = this;
+
+		this._increment++;
 		
-		this._options.params.rows   = this._rows;
+		this._options.params.rows  = this._rows;
 		
 		// The Serch Keyword
 		if(that._options.searcher )
@@ -546,18 +559,15 @@ THE SOFTWARE.
 			this._options.params.sortfield = this._sortfield;
 			this._options.params.sortby    = this._sortby;
 		}
-
 		// call onBeforeRequest callback 
 		that._options.onBeforeRequest.call(that);
 
 		// show loader spinner
 		that.showLoader();
-
 		// allow abort
 		if(that._options.allowAbort){
 			that._xhr.abort();
 		}
-
 		// this is the ajax request
 		this._xhr = $.ajax({
 		  method: String(that._options.method).toUpperCase(),
@@ -565,7 +575,11 @@ THE SOFTWARE.
 		  data: that._options.params
 		})
 		.fail(function(jqXHR, textStatus) {
-		  console.error( "Table Error:" + jqXHR.getResponseHeader());		  
+		  console.error( "Server Error:" + jqXHR.getResponseHeader());		  
+		  that._options.onRequestFail.call(that);
+		})
+		.error(function(jqXHR, textStatus) {
+		  console.error( "Server Error:" + jqXHR.getResponseHeader());		  
 		  that._options.onRequestFail.call(that);
 		})
 		.done(function( source ) {	
@@ -574,28 +588,66 @@ THE SOFTWARE.
 		   that._pages   = typeof(source.pages)   == 'undefined' ? that._pages   : source.pages;
 		   that._headers = typeof(source.headers) == 'undefined' ? that._headers : source.headers;
 		   that.hideLoader();
-		   that.render(data = null);
+		  cb();
 		});
 	},
 
+	$.fn.loadmore = function(){
+		var that = this;
+		//load
+		this.load(function(){
+			//Create Table
+			that.drawBody();
+		});
+		
+	}
+
 	$.fn.render = function(){
 		
+		//local scope
 		var that = this;
 
-		// //Create Table
-		this.drawBody( data );
+		$(this.mainBody).html('');	
+
+		if( this._options.showMoreUp ){
+			that.createShowMoreUp();
+		}	
+
+		//Create Table
+		this.drawBody();
+
+		if( this._options.hideStatus ){
+			that.createShowHiden();
+		}		
+		if( this._options.showMoreDown ){
+			that.createShowMoreDown();
+		}	
 
 		// this drawHeaders
 		this.drawHeaders();
-
+		
 		// onComplete Request
 		this._options.onCompleteRequest.call(this);
-
 	},
 
-	$.fn.prepend = function(){
+	$.fn.appendThis = function(rowset){
+		var that    = this;
+		var theid   = 'dsh-row-'+rowset.id;
+			that._dataSet[rowset.id] = rowset;
+			var element = that.getTemplate(rowset);													
+			$(that.mainBody)[that._insert_method](element);
+			$(element).attr('id',theid).hide();
+			$(element).attr('id',theid).fadeIn();
 
-
+		var element 			= document.getElementById(theid);			
+			element.className   = 'zrow';
+			element.dataset.id  = rowset.id;
+			element.onclick     = function(e){
+				e.preventDefault();
+				// that.active(this);
+				that.setActive(this.id);
+				that._options.onClick.call(this,that._dataSet[this.dataset.id]);		
+			}	
 	};
 
 
